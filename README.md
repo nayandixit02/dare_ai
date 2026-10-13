@@ -13,7 +13,7 @@
 4. [Tradeoffs & Engineering Considerations](#-tradeoffs--engineering-considerations)
 5. [Automated Test Suite (Vitest + Testing Library)](#-automated-test-suite)
 6. [How to Run Locally](#-how-to-run-locally)
-7. [5-Minute Demo Video Walkthrough Script](#-5-minute-demo-video-walkthrough-script)
+7. [Interactive Chaos & Edge-Case Testing Guide](#-interactive-chaos--edge-case-testing-guide)
 8. [Sources & References](#-sources--references)
 9. [AI Usage Disclosure](#-ai-usage-disclosure)
 
@@ -183,33 +183,29 @@ npm test
 
 ---
 
-## 🎥 5-Minute Demo Video Walkthrough Script
+## 🛠️ Interactive Chaos & Edge-Case Testing Guide
 
-Use this structured script when recording your 5-minute Loom / screen recording:
+Reviewers can directly test and verify real-world network edge cases in the live app:
 
-1. **Introduction (0:00 - 0:45)**:
-   - Introduce **Vortex Explorer** and state why **Problem Statement 1** was selected (demonstrating race condition prevention, virtualization over 12,500 records, and URL state synchronicity).
-   - Point out the top header: 12,500 total orders, live roundtrip latency indicator, and theme switcher.
-2. **Search Debouncing & Zero Stale State (0:45 - 1:45)**:
-   - Press `/` to focus the search bar.
-   - Type quickly: `"Vanguard"` or `"Cyberdyne"`.
-   - Show how the search debounces by 300ms, shows the `"Typing..."` pulse indicator, and updates the URL to `?q=Vanguard`.
-   - Show the browser Back button returning seamlessly to the prior search without 20 intermediate keystroke entries.
-3. **Filtering, Sorting & URL Deep Linking (1:45 - 2:45)**:
-   - Toggle status pills: click `"Delivered"` and `"In Transit"`. Show URL sync: `status=delivered,in_transit`.
-   - Sort by `"Amount"` ascending/descending. Show `aria-sort` indicators updating.
-   - Click any order row (e.g. `ORD-10025`). Show the slide-over detail drawer opening with customer metadata, carrier tracking, and itemized manifest.
-   - Copy the current URL, open a new browser tab, and paste it: show how the exact filters, page, and drawer open identically!
-4. **Large List Virtualization at 60 FPS (2:45 - 3:30)**:
-   - Switch the view toggle to `"Virtualized (10k)"`.
-   - Scroll down rapidly through thousands of records. Show that only ~18 DOM nodes are rendered in the DOM inspector at any given moment, maintaining a buttery 60 FPS.
-5. **Chaos Inspector: Demonstrating Failure & Race Conditions (3:30 - 4:45)**:
-   - Click the **"Chaos Inspector"** button at the bottom-right.
-   - Show the live network log stream.
-   - Click **"Trigger Race Condition Test"**: explain that 3 queries were fired in reverse order (2800ms, 1400ms, 200ms) and demonstrate how requests #1 and #2 were aborted while request #3 was rendered.
-   - Set the failure rate to 50% or 100% and refresh: demonstrate the honest **HTTP 503 Error Banner** and click **"Retry Request"** to show instant recovery!
-6. **Wrap-up (4:45 - 5:00)**:
-   - Highlight the Vitest automated test suite and Netlify deployment.
+1. **Race Condition Prevention**:
+   - Open the **Chaos Inspector** (click the flame badge at the bottom-right).
+   - Click **"Trigger Race Condition Test"**.
+   - The app fires 3 queries with inverted delays (Request 1 takes 2800ms, Request 2 takes 1400ms, Request 3 takes 200ms).
+   - Observe in the live network log that Requests #1 and #2 are immediately aborted by the `AbortController`, and only the latest response (Request #3) is rendered.
+2. **Debounced Search & URL Hygiene**:
+   - Press `/` to focus the search bar from anywhere on the page.
+   - Type rapidly (e.g., `"Vanguard"` or `"Stripe"`).
+   - Notice the `"Typing..."` pulse indicator. Keystrokes are debounced by 300ms, updating the URL (`?q=Vanguard`) using `history.replaceState` so your browser back button history is never polluted.
+3. **Deep-Linked Order Detail View**:
+   - Click any order row to open the slide-over detail drawer.
+   - The URL updates to `?selectedId=ORD-xxxxx`. Copy this URL into an incognito window or new tab; the drawer and exact order details open on initial load without losing filter state or scroll position.
+4. **DOM Virtualization at 60 FPS**:
+   - Switch the toggle in the search toolbar to **"Virtualized (10k)"**.
+   - Scroll through thousands of records smoothly. TanStack Virtualizer renders only ~18 DOM nodes in the viewport, keeping performance pinned at 60 FPS.
+5. **Honest Error Handling & Instant Recovery**:
+   - In the Chaos Inspector, set the failure rate to **50%** or **100%**.
+   - Trigger a search or page switch to observe the honest **HTTP 503 Chaos Error Banner** (old data is never presented as current).
+   - Click **"Retry Request"** to immediately re-dispatch with a fresh `AbortController`.
 
 ---
 
@@ -229,6 +225,6 @@ In compliance with assignment guideline #6, AI assistance (Gemini 3.8 Flash via 
 - Scaffolding TypeScript domain interfaces and deterministic dataset generation algorithms.
 - Designing the Vanilla CSS design system tokens and glassmorphism styling.
 - Authoring targeted Vitest unit test suites covering race conditions, URL serialization, and accessibility semantics.
-- Formatting the README documentation and demo video recording script.
+- Formatting the README documentation and test suite documentation.
 
 All architectural decisions, request cancellation logic, and code changes were reviewed, verified, and validated against the assignment requirements.
