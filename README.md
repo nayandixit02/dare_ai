@@ -1,6 +1,7 @@
 # Vortex Explorer — Resilient Enterprise Data Explorer
 
-> **Live Production Build & Deployment Ready** | **Frontend Developer Assignment Submission**  
+> 🌐 **Live Deployed App**: [https://dare-ai-explorer.netlify.app](https://dare-ai-explorer.netlify.app)  
+> 🔗 **GitHub Repository**: [https://github.com/nayandixit02/dare_ai](https://github.com/nayandixit02/dare_ai)  
 > *A high-performance, filterable, sortable explorer over 12,500+ enterprise records with zero stale state, DOM virtualization, URL-first routing, and honest network chaos resilience.*
 
 ---
